@@ -4,6 +4,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
+packages = ["psmisc"]
 
 [workflows]
 runButton = "Project"
@@ -36,6 +37,10 @@ externalPort = 80
 [[ports]]
 localPort = 34439
 externalPort = 3000
+
+[[ports]]
+localPort = 37935
+externalPort = 3001
 
 [deployment]
 deploymentTarget = "autoscale"
