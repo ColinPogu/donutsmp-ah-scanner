@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-def init_db() -> None:
+def _init_db() -> None:
     """Initialize database tables if they don't exist"""
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
@@ -89,6 +89,10 @@ def init_db() -> None:
     cur.execute("CREATE INDEX IF NOT EXISTS idx_rollups_item ON rollups_daily(item_id, item_name)")
     conn.commit()
     conn.close()
+
+
+# Initialize database at module import time
+_init_db()
 
 
 def _get_conn() -> sqlite3.Connection:
@@ -283,5 +287,4 @@ def api_stats():
 
 
 if __name__ == "__main__":
-    init_db()
     app.run(host="0.0.0.0", port=5000, debug=False)
