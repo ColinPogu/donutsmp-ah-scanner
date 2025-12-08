@@ -88,6 +88,15 @@ Configured for Replit Autoscale deployment:
 - Environment variables must be configured for scanner
 
 ## Recent Changes
+- **2024-12-08**: Trading Assistant Upgrade
+  - Redesigned dashboard as "DonutSMP Trading Assistant" with smart recommendations
+  - Implemented priority scoring algorithm: 40% discount, 30% price stability, 30% data confidence
+  - Added `/api/recommendations` endpoint with smart purchase recommendations
+  - Added `/api/market-overview` endpoint showing most-traded items with volatility metrics
+  - Enhanced `/api/undervalued` to include profit potential calculations
+  - Fixed stats to properly count from events table (77K+ data points collected)
+  - Improved styling with dark theme, responsive layout, and visual indicators
+  
 - **2024-12-08**: Initial Replit setup
   - Configured Flask to bind to 0.0.0.0:5000 for Replit proxy
   - Updated JavaScript to use relative API paths
