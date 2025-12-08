@@ -12,6 +12,85 @@ app = Flask(__name__)
 CORS(app)
 
 
+def init_db() -> None:
+    """Initialize database tables if they don't exist"""
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS listings (
+            id TEXT PRIMARY KEY,
+            item_id TEXT,
+            item_name TEXT,
+            count INTEGER,
+            price REAL,
+            seller_name TEXT,
+            seller_uuid TEXT,
+            time_left INTEGER,
+            seen_at INTEGER
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS prices (
+            id TEXT,
+            item_id TEXT,
+            item_name TEXT,
+            price REAL,
+            seen_at INTEGER
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS transactions (
+            unixMillisDateSold INTEGER,
+            item_id TEXT,
+            item_name TEXT,
+            price REAL,
+            seller_name TEXT,
+            seller_uuid TEXT
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT,
+            ts INTEGER,
+            item_id TEXT,
+            item_name TEXT,
+            price REAL,
+            seller_name TEXT,
+            seller_uuid TEXT,
+            count INTEGER,
+            time_left INTEGER
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS rollups_daily (
+            date TEXT,
+            item_id TEXT,
+            item_name TEXT,
+            median REAL,
+            p25 REAL,
+            p75 REAL,
+            count INTEGER,
+            PRIMARY KEY (date, item_id, item_name)
+        )
+        """
+    )
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_events_ts ON events(ts)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_events_item ON events(item_id, item_name)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_rollups_item ON rollups_daily(item_id, item_name)")
+    conn.commit()
+    conn.close()
+
+
 def _get_conn() -> sqlite3.Connection:
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -204,4 +283,5 @@ def api_stats():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    init_db()
+    app.run(host="0.0.0.0", port=5000, debug=False)
