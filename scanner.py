@@ -10,6 +10,13 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
+# Load .env file if present (for local development)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv not installed, use environment variables directly
+
 # Load config if present
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.ini")
 config = configparser.ConfigParser()
