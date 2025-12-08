@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DonutSMP AH Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { margin-bottom: 20px; color: #ffaa00; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .stat-card h3 { font-size: 14px; color: #aaa; margin-bottom: 10px; }
+        .stat-card .value { font-size: 28px; font-weight: bold; color: #ffaa00; }
+        .section {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            margin-bottom: 30px;
+        }
+        .section h2 { margin-bottom: 15px; color: #ffaa00; font-size: 20px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        th {
+            background: #1a1a1a;
+            color: #ffaa00;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #333;
+        }
+        .price { color: #4caf50; font-weight: bold; }
+        .median { color: #2196f3; }
+        .discount { color: #ff5722; font-weight: bold; }
+        .timestamp { color: #999; font-size: 12px; }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .error {
+            background: #ff5722;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍩 DonutSMP Auction House Tracker</h1>
+        
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <h3>Total Events</h3>
+                <div class="value" id="stat-events">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Listings</h3>
+                <div class="value" id="stat-listings">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Transactions</h3>
+                <div class="value" id="stat-transactions">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Unique Items</h3>
+                <div class="value" id="stat-items">-</div>
+            </div>
+        </div>
+
+        <div id="error-container"></div>
+
+        <div class="section">
+            <h2>🔥 Undervalued Listings (Below 70% Median)</h2>
+            <div id="undervalued-container">
+                <div class="loading">Loading undervalued listings...</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Recent Listings (Last 5 Minutes)</h2>
+            <div id="live-container">
+                <div class="loading">Loading live data...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
