@@ -3,114 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DonutSMP AH Tracker</title>
+    <title>DonutSMP Trading Assistant</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a1a;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #e0e0e0;
-            padding: 20px;
+            min-height: 100vh;
         }
-        .container { max-width: 1400px; margin: 0 auto; }
-        h1 { margin-bottom: 20px; color: #ffaa00; }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
             gap: 15px;
-            margin-bottom: 30px;
+        }
+        h1 { color: #ffd700; font-size: 28px; }
+        .status-badge {
+            background: #2ecc71;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
         }
         .stat-card {
-            background: #2a2a2a;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
             padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #333;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .stat-card h3 { font-size: 14px; color: #aaa; margin-bottom: 10px; }
-        .stat-card .value { font-size: 28px; font-weight: bold; color: #ffaa00; }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .stat-card h3 { font-size: 12px; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card .value { font-size: 32px; font-weight: bold; color: #ffd700; }
+        .stat-card .sub { font-size: 11px; color: #666; margin-top: 5px; }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 1200px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+        
         .section {
-            background: #2a2a2a;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
             padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            margin-bottom: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 20px;
         }
-        .section h2 { margin-bottom: 15px; color: #ffaa00; font-size: 20px; }
+        .section.full-width {
+            grid-column: 1 / -1;
+        }
+        .section h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: #ffd700;
+            font-size: 18px;
+        }
+        .section h2 .badge {
+            background: #e74c3c;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 13px;
         }
         th, td {
-            padding: 12px;
+            padding: 12px 10px;
             text-align: left;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         th {
-            background: #1a1a1a;
-            color: #ffaa00;
+            background: rgba(0,0,0,0.3);
+            color: #ffd700;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover { background: rgba(255,255,255,0.05); }
+        
+        .price { color: #2ecc71; font-weight: 600; }
+        .median { color: #3498db; }
+        .discount { 
+            color: #fff;
+            background: #e74c3c;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 11px;
+        }
+        .profit {
+            color: #2ecc71;
             font-weight: 600;
         }
-        tr:hover {
-            background: #333;
+        
+        .priority-score {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 14px;
         }
-        .price { color: #4caf50; font-weight: bold; }
-        .median { color: #2196f3; }
-        .discount { color: #ff5722; font-weight: bold; }
-        .timestamp { color: #999; font-size: 12px; }
+        .priority-high { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; }
+        .priority-medium { background: linear-gradient(135deg, #f39c12, #e67e22); color: #fff; }
+        .priority-low { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; }
+        
+        .item-name {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .confidence-bar {
+            width: 60px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .confidence-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e74c3c, #f39c12, #2ecc71);
+            border-radius: 3px;
+        }
+        
+        .time-left { color: #f39c12; font-size: 12px; }
+        .seller { color: #888; font-size: 12px; }
+        
         .loading {
             text-align: center;
             padding: 40px;
             color: #666;
         }
         .error {
-            background: #ff5722;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
             color: white;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
         }
+        
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .table-container::-webkit-scrollbar { width: 6px; }
+        .table-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 3px; }
+        .table-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+        
+        .tip-box {
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #87ceeb;
+        }
+        .tip-box strong { color: #3498db; }
+        
+        .volatility-low { color: #2ecc71; }
+        .volatility-medium { color: #f39c12; }
+        .volatility-high { color: #e74c3c; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🍩 DonutSMP Auction House Tracker</h1>
+        <header>
+            <h1>DonutSMP Trading Assistant</h1>
+            <div class="status-badge" id="status">LIVE - Scanning</div>
+        </header>
         
-        <div class="stats" id="stats">
+        <div class="stats-grid" id="stats">
             <div class="stat-card">
-                <h3>Total Events</h3>
+                <h3>Data Points</h3>
                 <div class="value" id="stat-events">-</div>
+                <div class="sub" id="stat-hours">Loading...</div>
             </div>
             <div class="stat-card">
-                <h3>Active Listings</h3>
+                <h3>Listings Tracked</h3>
                 <div class="value" id="stat-listings">-</div>
+                <div class="sub">Total scanned</div>
             </div>
             <div class="stat-card">
-                <h3>Transactions</h3>
+                <h3>Sales Tracked</h3>
                 <div class="value" id="stat-transactions">-</div>
+                <div class="sub">Completed trades</div>
             </div>
             <div class="stat-card">
                 <h3>Unique Items</h3>
                 <div class="value" id="stat-items">-</div>
+                <div class="sub">Being monitored</div>
+            </div>
+            <div class="stat-card">
+                <h3>Last Hour</h3>
+                <div class="value" id="stat-hour">-</div>
+                <div class="sub">New data points</div>
             </div>
         </div>
 
         <div id="error-container"></div>
 
-        <div class="section">
-            <h2>🔥 Undervalued Listings (Below 70% Median)</h2>
-            <div id="undervalued-container">
-                <div class="loading">Loading undervalued listings...</div>
+        <div class="main-grid">
+            <div class="section">
+                <h2>Buy Recommendations <span class="badge" id="rec-count">0</span></h2>
+                <div class="tip-box">
+                    <strong>Priority Score:</strong> Higher = Better deal. Based on discount (40%), price stability (30%), and data confidence (30%).
+                </div>
+                <div class="table-container" id="recommendations-container">
+                    <div class="loading">Analyzing market data...</div>
+                </div>
             </div>
-        </div>
 
-        <div class="section">
-            <h2>📊 Recent Listings (Last 5 Minutes)</h2>
-            <div id="live-container">
-                <div class="loading">Loading live data...</div>
+            <div class="section">
+                <h2>Best Deals <span class="badge" id="deals-count">0</span></h2>
+                <div class="tip-box">
+                    <strong>Profit Potential:</strong> Estimated profit if you buy at current price and sell at median.
+                </div>
+                <div class="table-container" id="undervalued-container">
+                    <div class="loading">Finding deals...</div>
+                </div>
+            </div>
+
+            <div class="section full-width">
+                <h2>Market Overview - Most Traded Items</h2>
+                <div class="table-container" id="market-container">
+                    <div class="loading">Loading market data...</div>
+                </div>
+            </div>
+
+            <div class="section full-width">
+                <h2>Recent Activity (Last 5 Min)</h2>
+                <div class="table-container" id="live-container">
+                    <div class="loading">Loading live data...</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="/app.js"></script>
+    <script src="/app.js?v=2"></script>
 </body>
 </html>
